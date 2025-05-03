@@ -74,7 +74,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                // Add KMP dependencies here
+                implementation(libs.kotlinx.coroutines.core)
+                api(libs.kfirebase.core)
             }
         }
 
@@ -89,6 +90,12 @@ kotlin {
                 // Add Android-specific dependencies here. Note that this source set depends on
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.
+
+
+                implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.13.0"))
+
+                // Firestore dependency
+                implementation(libs.firebase.firestore.ktx)
             }
         }
 

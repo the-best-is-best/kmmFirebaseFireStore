@@ -1,135 +1,145 @@
 package io.gituhb.demo
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import demo_app.composeapp.generated.resources.IndieFlower_Regular
-import demo_app.composeapp.generated.resources.Res
-import demo_app.composeapp.generated.resources.cyclone
-import demo_app.composeapp.generated.resources.ic_cyclone
-import demo_app.composeapp.generated.resources.ic_dark_mode
-import demo_app.composeapp.generated.resources.ic_light_mode
-import demo_app.composeapp.generated.resources.ic_rotate_right
-import demo_app.composeapp.generated.resources.open_github
-import demo_app.composeapp.generated.resources.run
-import demo_app.composeapp.generated.resources.stop
-import demo_app.composeapp.generated.resources.theme
+import io.github.firebase_firestore.KFirebaseFirestore
 import io.gituhb.demo.theme.AppTheme
-import io.gituhb.demo.theme.LocalThemeIsDark
-import kotlinx.coroutines.isActive
-import org.jetbrains.compose.resources.Font
-import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.vectorResource
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
 internal fun App() = AppTheme {
+    val kFirebaseFirestore = KFirebaseFirestore()
+    val scope = rememberCoroutineScope()
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = stringResource(Res.string.cyclone),
-            fontFamily = FontFamily(Font(Res.font.IndieFlower_Regular)),
-            style = MaterialTheme.typography.displayLarge
-        )
-
-        var isRotating by remember { mutableStateOf(false) }
-
-        val rotate = remember { Animatable(0f) }
-        val target = 360f
-        if (isRotating) {
-            LaunchedEffect(Unit) {
-                while (isActive) {
-                    val remaining = (target - rotate.value) / target
-                    rotate.animateTo(
-                        target,
-                        animationSpec = tween((1_000 * remaining).toInt(), easing = LinearEasing)
-                    )
-                    rotate.snapTo(0f)
-                }
-            }
-        }
-
-        Image(
-            modifier = Modifier
-                .size(250.dp)
-                .padding(16.dp)
-                .run { rotate(rotate.value) },
-            imageVector = vectorResource(Res.drawable.ic_cyclone),
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-            contentDescription = null
-        )
-
-        ElevatedButton(
-            modifier = Modifier
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-                .widthIn(min = 200.dp),
-            onClick = { isRotating = !isRotating },
-            content = {
-                Icon(vectorResource(Res.drawable.ic_rotate_right), contentDescription = null)
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text(
-                    stringResource(if (isRotating) Res.string.stop else Res.string.run)
+        ElevatedButton({
+            scope.launch {
+                kFirebaseFirestore.addDocument(
+                    "test",
+                    "test", mapOf("name" to "test", "age" to 10)
+                )
+                kFirebaseFirestore.addDocument(
+                    "test",
+                    "test2", mapOf("name" to "tes2t", "age" to 20)
                 )
             }
-        )
-
-        var isDark by LocalThemeIsDark.current
-        val icon = remember(isDark) {
-            if (isDark) Res.drawable.ic_light_mode
-            else Res.drawable.ic_dark_mode
+        }) {
+            Text("Add Document")
         }
-
-        ElevatedButton(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).widthIn(min = 200.dp),
-            onClick = { isDark = !isDark },
-            content = {
-                Icon(vectorResource(icon), contentDescription = null)
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text(stringResource(Res.string.theme))
+        ElevatedButton({
+            scope.launch {
+                val res = kFirebaseFirestore.getDocuments("test")
+                res.fold(
+                    onSuccess = { documents ->
+                        println("Documents: $documents")
+                    },
+                    onFailure = { exception ->
+                        println("Error getting documents: $exception")
+                    }
+                )
             }
-        )
-
-        val uriHandler = LocalUriHandler.current
-        TextButton(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).widthIn(min = 200.dp),
-            onClick = { uriHandler.openUri("https://github.com/terrakok") },
-        ) {
-            Text(stringResource(Res.string.open_github))
+        }) {
+            Text("Get Documents")
         }
+
+        ElevatedButton({
+            scope.launch {
+                val res = kFirebaseFirestore.getDocumentById("test", "test")
+                res.fold(
+                    onSuccess = { document ->
+                        println("Document: $document")
+                    },
+                    onFailure = { exception ->
+                        println("Error getting document: $exception")
+                    }
+                )
+            }
+        }) {
+            Text("Get Document By Id")
+        }
+
+        ElevatedButton({
+            scope.launch {
+                val res = kFirebaseFirestore.queryDocuments(
+                    "test",
+                    filters = listOf(
+                        mapOf("field" to "name", "operator" to "==", "value" to "test")
+                    ),
+                    orderBy = null,
+                    limit = null
+                )
+                res.fold(
+                    onSuccess = { documents ->
+                        println("Documents: $documents")
+                    },
+                    onFailure = { exception ->
+                        println("Error getting documents: $exception")
+                    }
+                )
+            }
+        }) {
+            Text("Query Documents")
+        }
+
+        ElevatedButton({
+            scope.launch {
+                kFirebaseFirestore.updateDocument(
+                    "test",
+                    "test",
+                    mapOf("name" to "test updated", "age" to 30)
+                )
+            }
+        }) {
+            Text("Update Document")
+        }
+
+        ElevatedButton({
+            scope.launch {
+                kFirebaseFirestore.deleteDocument("test", "test")
+            }
+        }) {
+            Text("Delete Document")
+        }
+
+        ElevatedButton({
+            scope.launch {
+                kFirebaseFirestore.listenToCollection("test")
+                    .collect { result ->
+                        // Handle success or failure
+                        if (result.isSuccess) {
+                            println("data : ${result.getOrNull()}")
+                        } else {
+                            // Handle failure (show error message)
+                            println("Error: ${result.exceptionOrNull()?.message}")
+                        }
+                    }
+
+            }
+        }) {
+            Text("Listen To Collection")
+        }
+
     }
 }

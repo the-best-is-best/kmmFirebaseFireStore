@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
+
 }
 
 kotlin {
@@ -33,6 +35,9 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+
+
+            implementation(project(":FirebaseFirestore"))
         }
 
         commonTest.dependencies {
@@ -57,7 +62,7 @@ android {
         minSdk = 21
         targetSdk = 35
 
-        applicationId = "io.gituhb.demo.androidApp"
+        applicationId = "org.company.app.androidApp"
         versionCode = 1
         versionName = "1.0.0"
 
