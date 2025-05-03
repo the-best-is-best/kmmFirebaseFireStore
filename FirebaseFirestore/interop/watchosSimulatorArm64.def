@@ -1,0 +1,3 @@
+language = Objective-C
+package = io.github.native.kfirebase.firestore
+headers = /Users/michelleraouf/Desktop/kmm/KFirebaseFireStore/FirebaseFirestore/interop/src/watchos-arm64_x86_64-simulator/FirebaseFirestore.framework/Headers/FirebaseFirestore-umbrella.h
