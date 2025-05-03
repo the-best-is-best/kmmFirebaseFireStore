@@ -12,6 +12,7 @@ kotlinxCoroutinesCore = "1.10.2"
 runner = "1.6.2"
 core = "1.6.1"
 junit = "1.2.1"
+maven-publish = "0.31.0"
 
 [libraries]
 
@@ -34,3 +35,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+maven-publish = {id = "com.vanniktech.maven.publish" , version.ref = "maven-publish"}
