@@ -37,7 +37,7 @@ KAndroidFirebaseCore.initialize(this)
 
 ### iOS (Using Swift Package Manager - SPM)
 
-Make sure to add Firebase as a dependency using Swift Package Manager (SPM) instead of CocoaPods.
+Make sure to add Firebase as a dependency using Swift Package Manager (SPM).
 
 1. Open your Xcode project.
 2. Go to **File > Add Packages...**
