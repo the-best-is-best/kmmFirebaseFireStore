@@ -137,11 +137,9 @@ actual class KFirebaseFirestore {
         orderBy: String?,
         limit: Long?
     ): Result<List<Map<String, Any?>>> = suspendCancellableCoroutine { cont ->
-        var query: FIRQuery =
-            firestore.collectionWithPath(collection) // Start with FIRQuery from the collection reference
+        var firQuery: FIRQuery? = firestore.collectionWithPath(collection)
 
         // Apply filters to the query
-        var firQuery: FIRQuery? = query
         filters.forEach { filter ->
             val field = filter["field"] as? String ?: return@forEach
             val operator = filter["operator"] as? String ?: return@forEach
@@ -163,13 +161,11 @@ actual class KFirebaseFirestore {
                     field,
                     notIn = value.filterIsInstance<Any>()
                 ) else null
-
+                "array-contains" -> FIRFilter.filterWhereField(field, arrayContains = value)
                 "array-contains-any" -> if (value is List<*>) FIRFilter.filterWhereField(
                     field,
                     arrayContainsAny = value.filterIsInstance<Any>()
                 ) else null
-
-                "array-contains" -> FIRFilter.filterWhereField(field, arrayContains = value)
                 else -> null
             }
 
@@ -177,27 +173,25 @@ actual class KFirebaseFirestore {
                 firQuery = firQuery?.queryWhereFilter(it)
             }
         }
-        // Apply orderBy and limit to the query if provided
+
+        // Apply ordering and limiting
         if (orderBy != null) {
-            query = query.queryOrderedByField(orderBy)
+            firQuery = firQuery?.queryOrderedByField(orderBy)
         }
 
         if (limit != null) {
-            query = query.queryLimitedTo(limit)
+            firQuery = firQuery?.queryLimitedTo(limit)
         }
 
-        // Execute the query and fetch results
-        query.getDocumentsWithCompletion { callbackIos, error ->
-            // Extract the documents from the callback
-            val documents = callbackIos?.documents
-
-            // Check if there's an error
+        // Execute the query
+        (firQuery
+            ?: firestore.collectionWithPath(collection)).getDocumentsWithCompletion { snapshot, error ->
             if (error != null) {
                 cont.resumeWith(Result.failure(error.convertNSErrorToException()))
             } else {
-                // Convert the documents to List<Map<String, Any?>> and return success result
-                val convertedData = documents?.let { convertToListOfMaps(it) }
-                cont.resume(Result.success(convertedData ?: emptyList()))
+                val documents = snapshot?.documents
+                val converted = convertToListOfMaps(documents)
+                cont.resume(Result.success(converted))
             }
         }
     }
