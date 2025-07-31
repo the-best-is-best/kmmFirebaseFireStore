@@ -1,0 +1,3 @@
+language = Objective-C
+package = io.github.native.kfirebase.firestore
+headers = /Users/michelleraouf/Desktop/kmm/kmmFirebaseFireStore/FirebaseFirestore/interop/src/FirebaseFirestore.h

@@ -23,6 +23,15 @@ KFirebaseFirestore is available on `mavenCentral()`.
 
 ---
 
+KFirebaseCore is available on `mavenCentral()`.
+
+## Version Compatibility
+
+| KFirebaseFirestore Version | Firebase iOS SDK | Minimum iOS Version |
+|----------------------------|------------------|---------------------|
+| 1.1.0                      | Firebase v11.x   | iOS 13+             |
+| 2.0.0                      | Firebase v12.x   | iOS 15+             |
+
 ## Installation
 
 ```kotlin

@@ -1,5 +1,4 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem
-import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -34,7 +33,7 @@ tasks.withType<PublishToMavenRepository> {
 extra["packageNameSpace"] = "io.github.firebase_firestore"
 extra["groupId"] = "io.github.the-best-is-best"
 extra["artifactId"] = "kfirebase-firestore"
-extra["version"] = "1.1.0"
+extra["version"] = "2.0.0"
 extra["packageName"] = "KFirebaseFirestore"
 extra["packageUrl"] = "https://github.com/the-best-is-best/kmmFirebaseFireStore"
 extra["packageDescription"] = "KFirebaseFirestore is a Kotlin Multiplatform library that provides a unified, idiomatic Kotlin interface for interacting with Firebase Firestore across Android, iOS, and other supported platforms. It simplifies data access, real-time updates, and Firestore queries using Kotlin coroutines and flows."
@@ -54,7 +53,7 @@ mavenPublishing {
         extra["version"].toString()
     )
 
-    publishToMavenCentral(SonatypeHost.S01, true)
+    publishToMavenCentral(true)
     signAllPublications()
 
     pom {
@@ -99,7 +98,7 @@ kotlin {
 // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
     androidLibrary {
         namespace = "io.github.firebase_firestore"
-        compileSdk = 35
+        compileSdk = 36
         minSdk = 21
 
     }
@@ -127,30 +126,15 @@ kotlin {
             isStatic = true
 
         }
+
         target.compilations.getByName("main") {
-            val defFileName = when (target.name) {
-                "iosX64" -> "iosX64.def"
-                "iosArm64" -> "iosArm64.def"
-                "iosSimulatorArm64" -> "iosSimulatorArm64.def"
-                "macosX64" -> "macosX64.def"
-                "macosArm64" -> "macosArm64.def"
-                "tvosX64" -> "tvosX64.def"
-                "tvosArm64" -> "tvosArm64.def"
-                "tvosSimulatorArm64" -> "tvosSimulatorArm64.def"
-
-                else -> throw IllegalStateException("Unsupported target: ${target.name}")
+            val firCore by cinterops.creating {
+                defFile("/Users/michelleraouf/Desktop/kmm/kmmFirebaseFireStore/FirebaseFirestore/interop/firFirstore.def")
+                packageName = "io.github.native.kfirebase.firestore"
             }
 
-            val defFile = project.file("interop/$defFileName")
-            if (defFile.exists()) {
-                cinterops.create("FirebseFirestore") {
-                    defFile(defFile)
-                    packageName = "io.github.native.kfirebase.firestore"
-                }
-            } else {
-                logger.warn("Def file not found for target ${target.name}: ${defFile.absolutePath}")
-            }
         }
+
     }
 
 
@@ -217,55 +201,42 @@ abstract class GenerateDefFilesTask : DefaultTask() {
         interopDir.get().asFile.mkdirs()
 
         // Constants
-        val firebaseMessagingHeaders =
-            "FirebaseFirestore.framework/Headers/FirebaseFirestore-umbrella.h"
+        val firebaseFirstoreHeaders =
+            "FirebaseFirestore.h"
 
         // Map targets to their respective paths
-        val targetToPath = mapOf(
-            "iosX64" to "ios-arm64_x86_64-simulator",
-            "iosArm64" to "ios-arm64",
-            "iosSimulatorArm64" to "ios-arm64_x86_64-simulator",
-            "macosX64" to "macos-arm64_x86_64",
-            "macosArm64" to "macos-arm64_x86_64",
-            "tvosArm64" to "tvos-arm64",
-            "tvosX64" to "tvos-arm64_x86_64-simulator",
-            "tvosSimulatorArm64" to "tvos-arm64_x86_64-simulator",
-            "watchosSimulatorArm64" to "watchos-arm64_x86_64-simulator",
-            "watchosX64" to "watchos-arm64_arm64_32",
-            "watchosArm32" to "watchos-arm64_arm64_32",
-            "watchosArm64" to "watchos-arm64_arm64_32",
-        )
+//        val targetToPath = mapOf(
+//            "iosX64" to "ios-arm64_x86_64-simulator",
+//            "iosArm64" to "ios-arm64",
+//            "iosSimulatorArm64" to "ios-arm64_x86_64-simulator",
+//            "macosX64" to "macos-arm64_x86_64",
+//            "macosArm64" to "macos-arm64_x86_64",
+//            "tvosArm64" to "tvos-arm64",
+//            "tvosX64" to "tvos-arm64_x86_64-simulator",
+//            "tvosSimulatorArm64" to "tvos-arm64_x86_64-simulator",
+//            "watchosSimulatorArm64" to "watchos-arm64_x86_64-simulator",
+//            "watchosX64" to "watchos-arm64_arm64_32",
+//            "watchosArm32" to "watchos-arm64_arm64_32",
+//            "watchosArm64" to "watchos-arm64_arm64_32",
+//        )
 
         // Helper function to generate header paths
-        fun headerPath(target: String): String {
-            return interopDir.dir("src/${targetToPath[target]}/$firebaseMessagingHeaders")
+        fun headerPath(): String {
+            return interopDir.dir("src/$firebaseFirstoreHeaders")
                 .get().asFile.absolutePath
         }
 
-        // Generate headerPaths dynamically
-        val headerPaths = targetToPath.mapValues { (target, _) ->
-            headerPath(target)
-        }
+        val defFile = File(interopDir.get().asFile, "firFirstore.def")
 
-        // List of targets derived from targetToPath keys
-        val iosTargets = targetToPath.keys.toList()
-
-        // Loop through the targets and create the .def files
-        iosTargets.forEach { target ->
-            val headerPath = headerPaths[target] ?: return@forEach
-            val defFile = File(interopDir.get().asFile, "$target.def")
-
-            // Generate the content for the .def file
-            val content = """
+        // Generate the content for the .def file
+        val content = """
                 language = Objective-C
                 package = ${packageName.get()}
-                headers = $headerPath
+                headers = ${headerPath()}
             """.trimIndent()
 
-            // Write content to the .def file
-            defFile.writeText(content)
-            println("Generated: ${defFile.absolutePath} with headers = $headerPath")
-        }
+        // Write content to the .def file
+        defFile.writeText(content)
     }
 }
 // Register the task within the Gradle build
