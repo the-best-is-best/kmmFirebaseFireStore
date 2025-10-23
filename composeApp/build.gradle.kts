@@ -56,11 +56,11 @@ kotlin {
 
 android {
     namespace = "io.gituhb.demo"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 35
+        minSdk = 23
+        targetSdk = 36
 
         applicationId = "org.company.app.androidApp"
         versionCode = 1

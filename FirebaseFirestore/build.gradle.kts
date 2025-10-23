@@ -33,7 +33,7 @@ tasks.withType<PublishToMavenRepository> {
 extra["packageNameSpace"] = "io.github.firebase_firestore"
 extra["groupId"] = "io.github.the-best-is-best"
 extra["artifactId"] = "kfirebase-firestore"
-extra["version"] = "2.0.0"
+extra["version"] = "2.1.0"
 extra["packageName"] = "KFirebaseFirestore"
 extra["packageUrl"] = "https://github.com/the-best-is-best/kmmFirebaseFireStore"
 extra["packageDescription"] = "KFirebaseFirestore is a Kotlin Multiplatform library that provides a unified, idiomatic Kotlin interface for interacting with Firebase Firestore across Android, iOS, and other supported platforms. It simplifies data access, real-time updates, and Firestore queries using Kotlin coroutines and flows."
@@ -99,7 +99,7 @@ kotlin {
     androidLibrary {
         namespace = "io.github.firebase_firestore"
         compileSdk = 36
-        minSdk = 21
+        minSdk = 23
 
     }
 
