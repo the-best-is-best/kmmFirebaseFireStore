@@ -5,17 +5,13 @@ plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
-    alias(libs.plugins.android.application)
-    id("com.google.gms.google-services")
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+//    id("com.google.gms.google-services")
 
 }
 
 kotlin {
     jvmToolchain(17)
-    androidTarget {
-        //https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-test.html
-        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
-    }
 
     listOf(
         iosX64(),
@@ -52,20 +48,11 @@ kotlin {
         }
 
     }
-}
 
-android {
-    namespace = "io.gituhb.demo"
-    compileSdk = 36
-
-    defaultConfig {
+    android {
+        namespace = "io.gituhb.demo"
+        compileSdk = 36
         minSdk = 23
-        targetSdk = 36
 
-        applicationId = "org.company.app.androidApp"
-        versionCode = 1
-        versionName = "1.0.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 }

@@ -28,6 +28,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-include(":composeApp")
+include(":sharedUI")
 
 include(":FirebaseFirestore")
+include(":androidApp")
